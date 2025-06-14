@@ -3,9 +3,9 @@ import requests
 
 app = Flask(__name__)
 
-# Date Telegram hardcodate
-TELEGRAM_TOKEN = '7860900046:AAGDUB2rZrs4lmmxy2c-2dvgYIyy2-gJoLY'
-TELEGRAM_CHAT_ID = '1056585959'  # Chat privat (direct cu tine)
+# Token și chat_id direct în cod
+TELEGRAM_TOKEN = '7397092840:AAE99Uu7YuB5ocqLmGfy2Py9sG6kTGYR42k'
+TELEGRAM_CHAT_ID = '1056585959'
 
 @app.route('/', methods=['POST'])
 def webhook():
