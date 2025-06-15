@@ -2,14 +2,19 @@ from flask import Flask, request
 import requests
 import threading
 import time
+import logging
+
+# 🔕 Dezactivează logurile verbose ale serverului Flask (werkzeug)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 
-# Token și chat_id direct în cod
+# Token și chat_id
 TELEGRAM_TOKEN = '7397092840:AAE99Uu7YuB5ocqLmGfy2Py9sG6kTGYR42k'
 TELEGRAM_CHAT_ID = '1056585959'
 
-# Webhook primit de la TradingView
+# Webhook primit de la TradingView (POST)
 @app.route('/', methods=['POST'])
 def webhook():
     data = request.json
@@ -25,32 +30,31 @@ def webhook():
 
     try:
         response = requests.post(telegram_url, data=payload)
-        print("📬 Răspuns de la Telegram:", response.status_code, response.text)
+        print("📬 Trimis în Telegram:", response.status_code, response.text)
 
         if response.status_code == 200:
-            return '✅ Trimite ok în Telegram.', 200
+            return '✅ Trimis în Telegram.', 200
         else:
-            return f'❌ Telegram a refuzat: {response.text}', 500
+            return f'❌ Eroare Telegram: {response.text}', 500
 
     except Exception as e:
-        print("❌ Eroare gravă:", str(e))
+        print("❌ Eroare la trimiterea în Telegram:", str(e))
         return f'❌ Eroare internă: {str(e)}', 500
 
-# Endpoint GET pentru autopinging
+# Endpoint GET pentru ping (nu printează nimic)
 @app.route('/', methods=['GET'])
 def keepalive():
     return '✅ Online', 200
 
-# Funcție care face ping către propriul endpoint
+# Self-ping la fiecare 60 secunde (fără spam în log)
 def autoping():
     while True:
         try:
             url = 'https://tradingview-alarm.onrender.com'
-            response = requests.get(url)
-            print(f"🔄 Self-ping: {response.status_code}")
+            requests.get(url)
         except Exception as e:
             print("⚠️ Eroare la self-ping:", e)
-        time.sleep(10)
+        time.sleep(60)
 
 if __name__ == '__main__':
     threading.Thread(target=autoping, daemon=True).start()
